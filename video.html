@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate stunning AI videos from text descriptions">
+    <title>Video Generation - Tensric</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body class="bg-noise">
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <img src="assets/logo.png" alt="Tensric Logo" class="logo-img">
+                    <span class="logo-text">Tensric</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </div>
+                        Dashboard
+                    </a>
+                    <a href="generate.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        Generate
+                    </a>
+                    <a href="video.html" class="nav-item active">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                            </svg>
+                        </div>
+                        Video
+                    </a>
+                    <a href="enhance.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                            </svg>
+                        </div>
+                        Enhance
+                    </a>
+                    <a href="settings.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                            </svg>
+                        </div>
+                        Settings
+                    </a>
+                    <a href="billing.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <line x1="1" y1="10" x2="23" y2="10" />
+                            </svg>
+                        </div>
+                        Billing
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-menu dropdown" id="userMenu">
+                    <div class="dropdown-trigger flex items-center gap-3 w-full">
+                        <div class="avatar" id="userAvatar">U</div>
+                        <div class="user-info">
+                            <div class="user-name" id="userName">User</div>
+                            <div class="user-email" id="userEmail">user@example.com</div>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" style="margin-left: auto;">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </div>
+                    <div class="dropdown-menu" style="bottom: 100%; top: auto; margin-bottom: 8px;">
+                        <a href="settings.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            Profile
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" onclick="NexusAuth.logout()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                            Sign out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="generate-layout">
+                <div class="generate-main">
+                    <!-- Video Generation Area -->
+                    <div class="generation-area card" id="generationArea">
+                        <div class="empty-generation" id="emptyState">
+                            <div class="icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <polygon points="23 7 16 12 23 17 23 7" />
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                </svg>
+                            </div>
+                            <h3>AI Video Generator</h3>
+                            <p>Describe your scene and watch it come to life</p>
+                        </div>
+
+                        <div class="generating-state" id="generatingState" style="display: none; text-align: center;">
+                            <div class="spinner" style="width: 56px; height: 56px; margin: 0 auto var(--space-4);">
+                            </div>
+                            <h3>Rendering your video...</h3>
+                            <p class="text-muted">This may take 1-2 minutes</p>
+                            <div class="progress-bar-container mt-4" style="width: 300px; margin: 20px auto 0;">
+                                <div class="progress-bar-fill" id="progressBar"
+                                    style="width: 0%; height: 6px; background: var(--gradient-primary); border-radius: 4px; transition: width 0.3s;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-state" id="resultState" style="display: none; width: 100%;">
+                            <div id="generatedVideo" class="video-container"
+                                style="width: 100%; border-radius: var(--radius-xl); overflow: hidden; background: black; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
+                                <!-- Video placeholder will be injected here -->
+                            </div>
+                            <div class="flex justify-center gap-3 mt-4">
+                                <button class="btn btn-secondary" id="downloadBtn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                        <polyline points="7 10 12 15 17 10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                    Download MP4
+                                </button>
+                                <button class="btn btn-secondary" id="regenerateBtn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="1 4 1 10 7 10" />
+                                        <path d="M3.51 15a9 9 0 1014.85-3.36L23 6" />
+                                    </svg>
+                                    Regenerate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Area -->
+                    <div class="prompt-area card">
+                        <textarea class="prompt-input" id="promptInput"
+                            placeholder="Describe the video you want to generate...&#10;&#10;Try: &quot;Cinematic drone shot of a futuristic city at sunset, flying cars, neon lights, 4k, highly detailed&quot;"
+                            maxlength="1000"></textarea>
+
+                        <div class="prompt-actions">
+                            <div class="prompt-options">
+                                <button class="btn btn-ghost btn-sm" id="uploadRefBtn" title="Upload start image">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <polyline points="21 15 16 10 5 21" />
+                                    </svg>
+                                </button>
+                                <button class="btn btn-ghost btn-sm" id="randomPromptBtn" title="Random prompt">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="1 4 1 10 7 10" />
+                                        <polyline points="23 20 23 14 17 14" />
+                                        <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm text-muted"><span id="charCount">0</span>/1000</span>
+                                <button class="btn btn-primary" id="generateBtn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polygon points="23 7 16 12 23 17 23 7" />
+                                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                    </svg>
+                                    Generate Video
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Settings -->
+                <div class="generate-sidebar">
+                    <div class="settings-card card">
+                        <h3>Video Settings</h3>
+
+                        <div class="setting-group">
+                            <span class="setting-label">Duration</span>
+                            <div class="aspect-options">
+                                <button class="aspect-btn active" data-duration="3">3s</button>
+                                <button class="aspect-btn" data-duration="5">5s</button>
+                                <button class="aspect-btn" data-duration="10">10s</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <span class="setting-label">Aspect Ratio</span>
+                            <div class="aspect-options">
+                                <button class="aspect-btn active" data-ratio="16:9">16:9</button>
+                                <button class="aspect-btn" data-ratio="9:16">9:16</button>
+                                <button class="aspect-btn" data-ratio="1:1">1:1</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <span class="setting-label">Motion Strength</span>
+                            <div class="quality-options">
+                                <button class="quality-btn" data-motion="low">Low</button>
+                                <button class="quality-btn active" data-motion="med">Med</button>
+                                <button class="quality-btn" data-motion="high">High</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <span class="setting-label">Camera Movement</span>
+                            <select class="input" id="cameraSelect">
+                                <option value="none">None</option>
+                                <option value="zoom_in">Zoom In</option>
+                                <option value="zoom_out">Zoom Out</option>
+                                <option value="pan_left">Pan Left</option>
+                                <option value="pan_right">Pan Right</option>
+                                <option value="tilt_up">Tilt Up</option>
+                                <option value="tilt_down">Tilt Down</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="history-panel card">
+                        <h3>Recent Videos</h3>
+                        <div class="history-grid" id="historyGrid">
+                            <div class="empty-state p-4" style="grid-column: span 2;">
+                                <p class="text-sm text-muted">No videos yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Load user data
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = NexusAuth.getCurrentUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userEmail').textContent = user.email || '';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+            }
+        });
+
+        // Character count
+        const promptInput = document.getElementById('promptInput');
+        const charCount = document.getElementById('charCount');
+
+        promptInput.addEventListener('input', () => {
+            charCount.textContent = promptInput.value.length;
+        });
+
+        // Button Toggles
+        function setupToggles(selector, dataAttr) {
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Only siblings
+                    const parent = btn.parentElement;
+                    parent.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        setupToggles('.aspect-btn', 'data-duration');
+        setupToggles('.quality-btn', 'data-motion');
+
+        // Random prompts
+        const randomPrompts = [
+            "A cinematic drone shot of huge waterfall in Iceland, 4k, realistic",
+            "Cyberpunk city street at night with rain and neon signs, camera panning left",
+            "Slow motion close up of a flower blooming, macro lens",
+            "Astronaut walking on Mars landscape, dust transformation, highly detailed",
+            "Underwater coral reef with colorful fish swimming, sun rays penetrating water"
+        ];
+
+        document.getElementById('randomPromptBtn').addEventListener('click', () => {
+            const randomPrompt = randomPrompts[Math.floor(Math.random() * randomPrompts.length)];
+            promptInput.value = randomPrompt;
+            charCount.textContent = randomPrompt.length;
+        });
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const prompt = promptInput.value.trim();
+
+            if (!prompt) {
+                NexusUI.showToast('Please enter a prompt', 'warning');
+                return;
+            }
+
+            // Show generating state
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultState').style.display = 'none';
+            document.getElementById('generatingState').style.display = 'block';
+
+            // Simulation Progress
+            const progressBar = document.getElementById('progressBar');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = progress + '%';
+            }, 200);
+
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+
+                // Create placeholder video visual
+                const randomColor1 = '#' + Math.floor(Math.random() * 16777215).toString(16);
+                const randomColor2 = '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+                const videoHtml = `
+                    <div style="width: 100%; height: 100%; background: linear-gradient(45deg, ${randomColor1}, ${randomColor2}); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">▶️</div>
+                        <div style="font-weight: bold;">Video Generated</div>
+                        <div style="font-size: 12px; opacity: 0.8; margin-top: 10px;">${prompt.substring(0, 40)}...</div>
+                    </div>
+                `;
+
+                document.getElementById('generatedVideo').innerHTML = videoHtml;
+                document.getElementById('generatingState').style.display = 'none';
+                document.getElementById('resultState').style.display = 'block';
+
+                // Update stats
+                const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
+                stats.totalVideos = (stats.totalVideos || 0) + 1; // Track videos separartely or same
+                stats.credits = Math.max(0, (stats.credits || 50) - 5); // Videos cost more
+                localStorage.setItem('nexus_stats', JSON.stringify(stats));
+
+                NexusUI.showToast('Video generated successfully!', 'success');
+
+            } catch (error) {
+                clearInterval(interval);
+                document.getElementById('generatingState').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+                NexusUI.showToast(error.message || 'Generation failed', 'error');
+            }
+        });
+
+        // Regenerate
+        document.getElementById('regenerateBtn').addEventListener('click', () => {
+            document.getElementById('generateBtn').click();
+        });
+    </script>
+</body>
+
+</html>

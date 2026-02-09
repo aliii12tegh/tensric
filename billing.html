@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tensric Billing - Manage your subscription">
+    <title>Billing - Tensric</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <img src="assets/logo.png" alt="Tensric Logo" class="logo-img">
+                    <span class="logo-text">Tensric</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </div>
+                        Dashboard
+                    </a>
+                    <a href="generate.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        Generate
+                    </a>
+                    <a href="video.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                            </svg>
+                        </div>
+                        Video
+                    </a>
+                    <a href="enhance.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                            </svg>
+                        </div>
+                        Enhance
+                    </a>
+                    <a href="settings.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                            </svg>
+                        </div>
+                        Settings
+                    </a>
+                    <a href="billing.html" class="nav-item active">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <line x1="1" y1="10" x2="23" y2="10" />
+                            </svg>
+                        </div>
+                        Billing
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-menu">
+                    <div class="avatar" id="userAvatar">U</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">User</div>
+                        <div class="user-email" id="userEmail">user@example.com</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Billing</h1>
+                <p>Manage your subscription and payments</p>
+            </div>
+
+            <!-- Current Plan -->
+            <div class="card p-6 mb-8"
+                style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h2>Pro Plan</h2>
+                            <span class="badge badge-gradient">Current</span>
+                        </div>
+                        <p class="text-secondary">$19/month • Renews on March 4, 2026</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button class="btn btn-secondary">Change Plan</button>
+                        <button class="btn btn-ghost">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Stats -->
+            <div class="billing-stats">
+                <div class="billing-stat card">
+                    <div class="value text-gradient" id="creditsUsed">450</div>
+                    <div class="label">Credits Used</div>
+                    <div class="progress mt-4">
+                        <div class="progress-bar" style="width: 90%;"></div>
+                    </div>
+                    <p class="text-xs text-muted mt-2">450 of 500 credits</p>
+                </div>
+
+                <div class="billing-stat card">
+                    <div class="value" style="color: var(--cyan-400);" id="creditsRemaining">50</div>
+                    <div class="label">Credits Remaining</div>
+                    <a href="#" class="btn btn-secondary btn-sm mt-4">Buy More</a>
+                </div>
+
+                <div class="billing-stat card">
+                    <div class="value" style="color: var(--emerald-400);">$19</div>
+                    <div class="label">Next Bill</div>
+                    <p class="text-xs text-muted mt-4">March 4, 2026</p>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="card p-6 mt-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3>Payment Method</h3>
+                    <button class="btn btn-ghost btn-sm">Add New</button>
+                </div>
+
+                <div class="flex items-center gap-4 p-4"
+                    style="background: var(--bg-tertiary); border-radius: var(--radius-lg);">
+                    <div
+                        style="width: 48px; height: 32px; background: linear-gradient(135deg, #1a1f71, #2d4b9e); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">
+                        VISA
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium">•••• •••• •••• 4242</div>
+                        <div class="text-sm text-muted">Expires 12/28</div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm">Edit</button>
+                </div>
+            </div>
+
+            <!-- Billing History -->
+            <div class="card p-6 mt-8">
+                <h3 class="mb-6">Billing History</h3>
+
+                <div class="overflow-auto">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="text-align: left; color: var(--text-muted); font-size: var(--text-sm);">
+                                <th style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-default);">
+                                    Date</th>
+                                <th style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-default);">
+                                    Description</th>
+                                <th style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-default);">
+                                    Amount</th>
+                                <th style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-default);">
+                                    Status</th>
+                                <th style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-default);">
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    Feb 4, 2026</td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    Pro Plan - Monthly</td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    $19.00</td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    <span class="badge badge-success">Paid</span>
+                                </td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    <button class="btn btn-ghost btn-sm">Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    Jan 4, 2026</td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    Pro Plan - Monthly</td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    $19.00</td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    <span class="badge badge-success">Paid</span>
+                                </td>
+                                <td style="padding: var(--space-4) 0; border-bottom: 1px solid var(--border-default);">
+                                    <button class="btn btn-ghost btn-sm">Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: var(--space-4) 0;">Dec 4, 2025</td>
+                                <td style="padding: var(--space-4) 0;">Pro Plan - Monthly</td>
+                                <td style="padding: var(--space-4) 0;">$19.00</td>
+                                <td style="padding: var(--space-4) 0;">
+                                    <span class="badge badge-success">Paid</span>
+                                </td>
+                                <td style="padding: var(--space-4) 0;">
+                                    <button class="btn btn-ghost btn-sm">Invoice</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = NexusAuth.getCurrentUser();
+
+            if (user) {
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userEmail').textContent = user.email || '';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+            }
+
+            // Load stats
+            const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
+            const creditsUsed = 500 - (stats.credits || 50);
+            document.getElementById('creditsUsed').textContent = creditsUsed;
+            document.getElementById('creditsRemaining').textContent = stats.credits || 50;
+        });
+    </script>
+</body>
+
+</html>

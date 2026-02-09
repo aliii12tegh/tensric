@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Tensric - Transform your imagination into stunning visuals with AI-powered image generation and enhancement">
+    <title>Tensric - AI Image Generation & Enhancement</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body class="bg-noise">
+    <!-- Cursor Glow Effect -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- Floating Background Elements -->
+    <div class="floating-bg">
+        <div class="floating-element purple" style="width: 400px; height: 400px; top: 10%; left: 5%;"></div>
+        <div class="floating-element cyan" style="width: 300px; height: 300px; top: 60%; right: 10%;"></div>
+        <div class="floating-element pink" style="width: 250px; height: 250px; bottom: 10%; left: 30%;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <img src="assets/logo.png" alt="Tensric Logo" class="logo-img">
+                    <span class="logo-text">Tensric</span>
+                </a>
+
+                <div class="nav-links hide-mobile">
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#about" class="nav-link">About</a>
+                </div>
+
+                <div class="nav-actions">
+                    <a href="login.html" class="btn btn-ghost">Sign In</a>
+                    <a href="signup.html" class="btn btn-primary">Get Started</a>
+                </div>
+
+                <button class="mobile-menu-btn show-mobile" id="mobileMenuBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge animate-fade-in">
+                    <span class="badge badge-gradient">✨ Now with 4K Generation</span>
+                </div>
+
+                <h1 class="hero-title animate-fade-in-up delay-100">
+                    Transform Your
+                    <span class="text-gradient">Imagination</span>
+                    Into Reality
+                </h1>
+
+                <p class="hero-description animate-fade-in-up delay-200">
+                    Create stunning, high-quality images with the power of AI.
+                    Generate, enhance, and bring your creative visions to life in seconds.
+                </p>
+
+                <div class="hero-actions animate-fade-in-up delay-300">
+                    <a href="signup.html" class="btn btn-primary btn-lg">
+                        Start Creating Free
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    <a href="#features" class="btn btn-secondary btn-lg">
+                        See How It Works
+                    </a>
+                </div>
+
+                <div class="hero-stats animate-fade-in-up delay-400">
+                    <div class="stat">
+                        <span class="stat-value">10M+</span>
+                        <span class="stat-label">Images Created</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-value">50K+</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-value">4.9★</span>
+                        <span class="stat-label">User Rating</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual perspective">
+                <div class="hero-card-stack">
+                    <div class="hero-card card-3d animate-float delay-100" style="--float-delay: 0s;">
+                        <img src="assets/hero-1.png" alt="Cyberpunk City" class="card-image">
+                    </div>
+                    <div class="hero-card card-3d animate-float delay-200" style="--float-delay: 0.5s;">
+                        <img src="assets/hero-2.png" alt="Abstract Art" class="card-image">
+                    </div>
+                    <div class="hero-card card-3d animate-float delay-300" style="--float-delay: 1s;">
+                        <img src="assets/hero-3.png" alt="Fantasy Landscape" class="card-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator animate-bounce">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section features-section" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="badge badge-primary">Features</span>
+                <h2>Everything You Need to Create</h2>
+                <p>Powerful AI tools designed to bring your creative vision to life</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card card card-hover reveal">
+                    <div class="icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <h3>AI Image Generation</h3>
+                    <p>Create stunning images from text descriptions using state-of-the-art AI models</p>
+                </div>
+
+                <div class="feature-card card card-hover reveal delay-100">
+                    <div class="icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 3v18M3 12h18" />
+                            <circle cx="12" cy="12" r="9" />
+                        </svg>
+                    </div>
+                    <h3>Image Enhancement</h3>
+                    <p>Upscale, restore, and enhance your images with AI-powered tools</p>
+                </div>
+
+                <div class="feature-card card card-hover reveal delay-200">
+                    <div class="icon" style="background: linear-gradient(135deg, #a855f7, #c084fc);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M9 9h6v6H9z" />
+                        </svg>
+                    </div>
+                    <h3>Multiple Formats</h3>
+                    <p>Export in any format and resolution up to 4K quality</p>
+                </div>
+
+                <div class="feature-card card card-hover reveal delay-300">
+                    <div class="icon" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>Generate high-quality images in seconds, not minutes</p>
+                </div>
+
+                <div class="feature-card card card-hover reveal delay-400">
+                    <div class="icon" style="background: linear-gradient(135deg, #10b981, #34d399);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>Your creations are yours. Enterprise-grade security and privacy</p>
+                </div>
+
+                <div class="feature-card card card-hover reveal delay-500">
+                    <div class="icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                    </div>
+                    <h3>Easy Downloads</h3>
+                    <p>Download your creations instantly in multiple formats</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section class="section showcase-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="badge badge-primary">Showcase</span>
+                <h2>See What's Possible</h2>
+                <p>Real examples created by our community</p>
+            </div>
+
+            <div class="showcase-grid reveal">
+                <div class="showcase-item">
+                    <img src="assets/showcase-1.png" alt="Futuristic city at sunset" class="showcase-image">
+                    <div class="showcase-overlay">
+                        <span class="showcase-prompt">"Futuristic city at sunset"</span>
+                    </div>
+                </div>
+                <div class="showcase-item">
+                    <img src="assets/showcase-2.png" alt="Abstract art explosion" class="showcase-image">
+                    <div class="showcase-overlay">
+                        <span class="showcase-prompt">"Abstract art explosion"</span>
+                    </div>
+                </div>
+                <div class="showcase-item">
+                    <img src="assets/showcase-3.png" alt="Dreamy landscape" class="showcase-image">
+                    <div class="showcase-overlay">
+                        <span class="showcase-prompt">"Dreamy landscape"</span>
+                    </div>
+                </div>
+                <div class="showcase-item">
+                    <img src="assets/showcase-4.png" alt="Portrait with neon" class="showcase-image">
+                    <div class="showcase-overlay">
+                        <span class="showcase-prompt">"Portrait with neon"</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="section pricing-section" id="pricing">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="badge badge-primary">Pricing</span>
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that works best for you</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card card reveal">
+                    <div class="plan-name">Starter</div>
+                    <div class="price">$0<span>/month</span></div>
+                    <p class="plan-desc">Perfect for trying out</p>
+                    <ul class="features">
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            50 generations/month
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            HD quality
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Basic support
+                        </li>
+                    </ul>
+                    <a href="signup.html" class="btn btn-secondary w-full">Get Started Free</a>
+                </div>
+
+                <div class="pricing-card card featured reveal delay-100">
+                    <span class="badge badge-gradient">Most Popular</span>
+                    <div class="plan-name">Pro</div>
+                    <div class="price">$19<span>/month</span></div>
+                    <p class="plan-desc">Best for creators</p>
+                    <ul class="features">
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            500 generations/month
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            4K quality
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Priority support
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            All AI models
+                        </li>
+                    </ul>
+                    <a href="signup.html" class="btn btn-primary w-full">Start Pro Trial</a>
+                </div>
+
+                <div class="pricing-card card reveal delay-200">
+                    <div class="plan-name">Enterprise</div>
+                    <div class="price">$99<span>/month</span></div>
+                    <p class="plan-desc">For teams & businesses</p>
+                    <ul class="features">
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Unlimited generations
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            8K quality
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Dedicated support
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            API access
+                        </li>
+                    </ul>
+                    <a href="signup.html" class="btn btn-secondary w-full">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta-section">
+        <div class="container">
+            <div class="cta-content card card-glass reveal">
+                <h2>Ready to Create Something Amazing?</h2>
+                <p>Join thousands of creators already using Tensric</p>
+                <a href="signup.html" class="btn btn-primary btn-lg">
+                    Start Creating Free
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/logo.png" alt="Tensric Logo" class="logo-img">
+                        <span class="logo-text">Tensric</span>
+                    </a>
+                    <p>Transform your imagination into stunning visuals with AI</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#pricing">Pricing</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <a href="#about">About</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Careers</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="#">Privacy</a>
+                        <a href="#">Terms</a>
+                        <a href="#">Security</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Tensric. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

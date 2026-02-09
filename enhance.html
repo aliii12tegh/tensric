@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Enhance your images with AI - Upscale, restore, and improve">
+    <title>Enhance - Tensric</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+
+    <style>
+        /* Enhancement Progress Overlay */
+        .enhance-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .enhance-overlay.active {
+            display: flex;
+        }
+
+        .enhance-progress-container {
+            text-align: center;
+            max-width: 400px;
+            padding: var(--space-8);
+        }
+
+        .enhance-progress-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto var(--space-6);
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .enhance-progress-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        .enhance-progress-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            margin-bottom: var(--space-2);
+        }
+
+        .enhance-progress-subtitle {
+            color: var(--text-muted);
+            margin-bottom: var(--space-8);
+        }
+
+        .progress-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            height: 12px;
+            overflow: hidden;
+            margin-bottom: var(--space-4);
+            border: 1px solid var(--border-default);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            width: 0%;
+            transition: width 0.3s ease-out;
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .progress-percentage {
+            font-family: var(--font-display);
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-status {
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            margin-top: var(--space-2);
+        }
+
+        /* Before/After Comparison */
+        .comparison-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid var(--border-default);
+        }
+
+        .comparison-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/10;
+            cursor: ew-resize;
+            user-select: none;
+        }
+
+        .comparison-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .comparison-before {
+            z-index: 1;
+        }
+
+        .comparison-after {
+            z-index: 2;
+            clip-path: inset(0 50% 0 0);
+        }
+
+        .comparison-slider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: white;
+            z-index: 10;
+            transform: translateX(-50%);
+            cursor: ew-resize;
+        }
+
+        .comparison-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .comparison-handle:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .comparison-handle svg {
+            color: var(--bg-primary);
+            width: 24px;
+            height: 24px;
+        }
+
+        .comparison-labels {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+        }
+
+        .comparison-label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+        }
+
+        .comparison-label.before {
+            color: var(--text-muted);
+        }
+
+        .comparison-label.after {
+            color: var(--cyan-400);
+        }
+
+        .comparison-label .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .comparison-label.before .dot {
+            background: var(--text-muted);
+        }
+
+        .comparison-label.after .dot {
+            background: var(--cyan-400);
+        }
+
+        /* Result Actions */
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-4);
+            margin-top: var(--space-6);
+        }
+
+        /* Image Preview State */
+        .image-preview {
+            display: none;
+        }
+
+        .image-preview.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- Enhancement Progress Overlay -->
+    <div class="enhance-overlay" id="enhanceOverlay">
+        <div class="enhance-progress-container">
+            <div class="enhance-progress-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+            </div>
+            <h2 class="enhance-progress-title">Enhancing Image</h2>
+            <p class="enhance-progress-subtitle">AI is processing your image...</p>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+
+            <div class="progress-percentage" id="progressPercent">0%</div>
+            <div class="progress-status" id="progressStatus">Analyzing image...</div>
+        </div>
+    </div>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <img src="assets/logo.png" alt="Tensric Logo" class="logo-img">
+                    <span class="logo-text">Tensric</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </div>
+                        Dashboard
+                    </a>
+                    <a href="generate.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        Generate
+                    </a>
+                    <a href="video.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                            </svg>
+                        </div>
+                        Video
+                    </a>
+                    <a href="enhance.html" class="nav-item active">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                            </svg>
+                        </div>
+                        Enhance
+                    </a>
+                    <a href="settings.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                            </svg>
+                        </div>
+                        Settings
+                    </a>
+                    <a href="billing.html" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <line x1="1" y1="10" x2="23" y2="10" />
+                            </svg>
+                        </div>
+                        Billing
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-menu">
+                    <div class="avatar" id="userAvatar">U</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">User</div>
+                        <div class="user-email" id="userEmail">user@example.com</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Enhance Images</h1>
+                <p>Upscale and improve your images with AI</p>
+            </div>
+
+            <div class="enhance-layout">
+                <div class="enhance-main">
+                    <!-- Upload Zone -->
+                    <div class="upload-zone card" id="uploadZone">
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                        <div class="icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                        </div>
+                        <h3>Drop your image here</h3>
+                        <p>or click to browse (PNG, JPG, WEBP up to 10MB)</p>
+                    </div>
+
+                    <!-- Image Preview with Before/After -->
+                    <div class="image-preview card" id="imagePreview">
+                        <div class="comparison-wrapper">
+                            <div class="comparison-container" id="comparisonContainer">
+                                <div class="comparison-image comparison-before" id="beforeImage"></div>
+                                <div class="comparison-image comparison-after" id="afterImage"></div>
+                                <div class="comparison-slider" id="comparisonSlider">
+                                    <div class="comparison-handle">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="15 18 9 12 15 6" />
+                                            <polyline points="9 18 15 12 9 6" transform="translate(6, 0)" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comparison-labels">
+                                <div class="comparison-label before">
+                                    <span class="dot"></span>
+                                    Before
+                                </div>
+                                <div class="comparison-label after">
+                                    <span class="dot"></span>
+                                    After Enhancement
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn btn-ghost" id="changeImageBtn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10" />
+                                    <path d="M3.51 15a9 9 0 1014.85-3.36L23 6" />
+                                </svg>
+                                Change Image
+                            </button>
+                            <button class="btn btn-primary" id="downloadEnhancedBtn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Download Enhanced
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhancement Options -->
+                <div class="generate-sidebar">
+                    <div class="settings-card card">
+                        <h3>Enhancement Options</h3>
+
+                        <div class="enhance-options">
+                            <div class="enhance-option active" data-option="upscale">
+                                <div class="enhance-option-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="15 3 21 3 21 9" />
+                                        <polyline points="9 21 3 21 3 15" />
+                                        <line x1="21" y1="3" x2="14" y2="10" />
+                                        <line x1="3" y1="21" x2="10" y2="14" />
+                                    </svg>
+                                    <div>
+                                        <h4>Upscale 2x</h4>
+                                        <p>Increase resolution</p>
+                                    </div>
+                                </div>
+                                <div class="toggle active"></div>
+                            </div>
+
+                            <div class="enhance-option" data-option="denoise">
+                                <div class="enhance-option-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 3a6 6 0 00-6 6c0 7 6 12 6 12s6-5 6-12a6 6 0 00-6-6z" />
+                                    </svg>
+                                    <div>
+                                        <h4>Denoise</h4>
+                                        <p>Remove noise & grain</p>
+                                    </div>
+                                </div>
+                                <div class="toggle"></div>
+                            </div>
+
+                            <div class="enhance-option" data-option="sharpen">
+                                <div class="enhance-option-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon
+                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                    </svg>
+                                    <div>
+                                        <h4>Sharpen</h4>
+                                        <p>Enhance details</p>
+                                    </div>
+                                </div>
+                                <div class="toggle"></div>
+                            </div>
+
+                            <div class="enhance-option" data-option="colorize">
+                                <div class="enhance-option-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="13.5" cy="6.5" r="2.5" />
+                                        <circle cx="6.5" cy="13.5" r="2.5" />
+                                        <circle cx="17.5" cy="17.5" r="2.5" />
+                                    </svg>
+                                    <div>
+                                        <h4>Color Enhance</h4>
+                                        <p>Vibrant colors</p>
+                                    </div>
+                                </div>
+                                <div class="toggle"></div>
+                            </div>
+
+                            <div class="enhance-option" data-option="restore">
+                                <div class="enhance-option-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+                                        <path d="M13 13l6 6" />
+                                    </svg>
+                                    <div>
+                                        <h4>Face Restore</h4>
+                                        <p>Fix faces in photos</p>
+                                    </div>
+                                </div>
+                                <div class="toggle"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <button class="btn btn-primary w-full btn-lg" id="enhanceBtn" disabled>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M12 1v2M12 21v2" />
+                            </svg>
+                            Enhance Image
+                        </button>
+                        <p class="text-xs text-muted text-center mt-3">1 credit per enhancement</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Variables
+        let originalImageUrl = null;
+        let enhancedImageUrl = null;
+        let isEnhanced = false;
+
+        // Load user data
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = NexusAuth.getCurrentUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userEmail').textContent = user.email || '';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+            }
+        });
+
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const enhanceBtn = document.getElementById('enhanceBtn');
+        const enhanceOverlay = document.getElementById('enhanceOverlay');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressStatus = document.getElementById('progressStatus');
+
+        // Drag and drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = 'var(--primary-500)';
+            uploadZone.style.background = 'rgba(99, 102, 241, 0.05)';
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = '';
+            uploadZone.style.background = '';
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '';
+            uploadZone.style.background = '';
+
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImageUrl = e.target.result;
+
+                // Show original image in both before and after (before enhancement)
+                document.getElementById('beforeImage').style.backgroundImage = `url(${originalImageUrl})`;
+                document.getElementById('afterImage').style.backgroundImage = `url(${originalImageUrl})`;
+
+                // Reset slider to middle
+                updateSlider(50);
+
+                uploadZone.style.display = 'none';
+                imagePreview.classList.add('active');
+                enhanceBtn.disabled = false;
+                isEnhanced = false;
+
+                // Update labels
+                document.querySelector('.comparison-label.after').innerHTML = '<span class="dot"></span> After Enhancement';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Toggle options
+        document.querySelectorAll('.enhance-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const toggle = option.querySelector('.toggle');
+                toggle.classList.toggle('active');
+                option.classList.toggle('active');
+            });
+        });
+
+        // Change image
+        document.getElementById('changeImageBtn').addEventListener('click', () => {
+            imagePreview.classList.remove('active');
+            uploadZone.style.display = 'flex';
+            enhanceBtn.disabled = true;
+            fileInput.value = '';
+            isEnhanced = false;
+            originalImageUrl = null;
+            enhancedImageUrl = null;
+        });
+
+        // Comparison slider functionality
+        const comparisonContainer = document.getElementById('comparisonContainer');
+        const comparisonSlider = document.getElementById('comparisonSlider');
+        const afterImage = document.getElementById('afterImage');
+
+        let isDragging = false;
+
+        function updateSlider(percent) {
+            percent = Math.max(0, Math.min(100, percent));
+            comparisonSlider.style.left = percent + '%';
+            afterImage.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        }
+
+        function handleMove(e) {
+            if (!isDragging) return;
+
+            const rect = comparisonContainer.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const percent = (x / rect.width) * 100;
+            updateSlider(percent);
+        }
+
+        comparisonSlider.addEventListener('mousedown', () => isDragging = true);
+        comparisonSlider.addEventListener('touchstart', () => isDragging = true);
+
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('touchend', () => isDragging = false);
+
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchmove', handleMove);
+
+        // Click on container to move slider
+        comparisonContainer.addEventListener('click', (e) => {
+            const rect = comparisonContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = (x / rect.width) * 100;
+            updateSlider(percent);
+        });
+
+        // Enhance button with progress
+        enhanceBtn.addEventListener('click', async () => {
+            if (isEnhanced) {
+                if (typeof NexusUI !== 'undefined') {
+                    NexusUI.showToast('Image already enhanced!', 'info');
+                }
+                return;
+            }
+
+            // Show overlay
+            enhanceOverlay.classList.add('active');
+
+            // Progress animation
+            const statuses = [
+                { percent: 10, text: 'Analyzing image...' },
+                { percent: 25, text: 'Detecting features...' },
+                { percent: 40, text: 'Upscaling resolution...' },
+                { percent: 55, text: 'Enhancing details...' },
+                { percent: 70, text: 'Reducing noise...' },
+                { percent: 85, text: 'Applying final touches...' },
+                { percent: 95, text: 'Almost done...' },
+                { percent: 100, text: 'Complete!' }
+            ];
+
+            for (const status of statuses) {
+                await new Promise(resolve => setTimeout(resolve, 400));
+                progressFill.style.width = status.percent + '%';
+                progressPercent.textContent = status.percent + '%';
+                progressStatus.textContent = status.text;
+            }
+
+            // Create "enhanced" version (just a filter simulation for demo)
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            // Create enhanced image with CSS filters (demo simulation)
+            const canvas = document.createElement('canvas');
+            const img = new Image();
+            img.src = originalImageUrl;
+
+            await new Promise(resolve => {
+                img.onload = resolve;
+            });
+
+            canvas.width = img.width * 1.5; // Simulate upscale
+            canvas.height = img.height * 1.5;
+            const ctx = canvas.getContext('2d');
+
+            // Draw with enhanced settings
+            ctx.filter = 'contrast(1.1) saturate(1.2) brightness(1.05)';
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            enhancedImageUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+            // Update after image
+            document.getElementById('afterImage').style.backgroundImage = `url(${enhancedImageUrl})`;
+
+            // Update label
+            document.querySelector('.comparison-label.after').innerHTML = '<span class="dot"></span> ✨ Enhanced (2x)';
+
+            // Hide overlay
+            enhanceOverlay.classList.remove('active');
+
+            // Reset progress for next time
+            setTimeout(() => {
+                progressFill.style.width = '0%';
+                progressPercent.textContent = '0%';
+                progressStatus.textContent = 'Analyzing image...';
+            }, 500);
+
+            // Update stats
+            const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
+            stats.enhanced = (stats.enhanced || 0) + 1;
+            stats.credits = Math.max(0, (stats.credits || 50) - 1);
+            localStorage.setItem('nexus_stats', JSON.stringify(stats));
+
+            isEnhanced = true;
+
+            if (typeof NexusUI !== 'undefined') {
+                NexusUI.showToast('Image enhanced successfully! Drag the slider to compare.', 'success');
+            }
+        });
+
+        // Download enhanced
+        document.getElementById('downloadEnhancedBtn').addEventListener('click', () => {
+            if (!enhancedImageUrl && !originalImageUrl) {
+                if (typeof NexusUI !== 'undefined') {
+                    NexusUI.showToast('No image to download', 'warning');
+                }
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = enhancedImageUrl || originalImageUrl;
+            link.download = 'nexus-enhanced-image.jpg';
+            link.click();
+
+            if (typeof NexusUI !== 'undefined') {
+                NexusUI.showToast('Image downloaded!', 'success');
+            }
+        });
+    </script>
+</body>
+
+</html>
