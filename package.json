@@ -4,8 +4,7 @@
     "description": "Nexus AI - Premium AI Image Generation & Enhancement Platform",
     "main": "index.html",
     "scripts": {
-        "dev": "npx live-server --port=3000 --open=/index.html",
-        "start": "npx live-server --port=3000 --open=/index.html"
+        "dev": "npx live-server --port=3000 --open=/index.html"
     },
     "keywords": [
         "ai",
