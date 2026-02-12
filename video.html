@@ -190,9 +190,35 @@
 
                     <!-- Prompt Area -->
                     <div class="prompt-area card">
+                        <!-- Reference Image Preview -->
+                        <div id="refImagePreview"
+                            style="display: none; padding: 0 var(--space-4); padding-top: var(--space-3);">
+                            <div
+                                style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg);">
+                                <img id="refImageThumb" src="" alt="Start Image"
+                                    style="width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);" />
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        id="refImageName">image.png</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);" id="refImageSize">0 KB</div>
+                                </div>
+                                <button id="removeRefBtn" title="Remove image"
+                                    style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-full); background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); cursor: pointer; transition: all 0.2s; flex-shrink: 0;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
                         <textarea class="prompt-input" id="promptInput"
                             placeholder="Describe the video you want to generate...&#10;&#10;Try: &quot;Cinematic drone shot of a futuristic city at sunset, flying cars, neon lights, 4k, highly detailed&quot;"
                             maxlength="1000"></textarea>
+
+                        <!-- Hidden file input -->
+                        <input type="file" id="refImageInput" accept="image/*" style="display: none;" />
 
                         <div class="prompt-actions">
                             <div class="prompt-options">
@@ -324,6 +350,61 @@
         setupToggles('.aspect-btn', 'data-duration');
         setupToggles('.quality-btn', 'data-motion');
 
+        // ── Upload Start Image ──
+        let referenceImageData = null;
+        const refImageInput = document.getElementById('refImageInput');
+        const refImagePreview = document.getElementById('refImagePreview');
+        const refImageThumb = document.getElementById('refImageThumb');
+        const refImageName = document.getElementById('refImageName');
+        const refImageSize = document.getElementById('refImageSize');
+        const uploadRefBtn = document.getElementById('uploadRefBtn');
+        const removeRefBtn = document.getElementById('removeRefBtn');
+
+        // Click the upload button → open file picker
+        uploadRefBtn.addEventListener('click', () => {
+            refImageInput.click();
+        });
+
+        // Handle file selection
+        refImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                NexusUI.showToast('Please select an image file', 'warning');
+                return;
+            }
+
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                NexusUI.showToast('Image must be under 10MB', 'warning');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                referenceImageData = event.target.result;
+                refImageThumb.src = referenceImageData;
+                refImageName.textContent = file.name;
+                const sizeKB = (file.size / 1024).toFixed(1);
+                refImageSize.textContent = sizeKB > 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : sizeKB + ' KB';
+                refImagePreview.style.display = 'block';
+                uploadRefBtn.style.color = 'var(--primary-400)';
+                NexusUI.showToast('Start image added!', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Remove reference image
+        removeRefBtn.addEventListener('click', () => {
+            referenceImageData = null;
+            refImageInput.value = '';
+            refImagePreview.style.display = 'none';
+            uploadRefBtn.style.color = '';
+            NexusUI.showToast('Start image removed', 'info');
+        });
+
         // Random prompts
         const randomPrompts = [
             "A cinematic drone shot of huge waterfall in Iceland, 4k, realistic",
@@ -369,16 +450,29 @@
                 progressBar.style.width = '100%';
 
                 // Create placeholder video visual
-                const randomColor1 = '#' + Math.floor(Math.random() * 16777215).toString(16);
-                const randomColor2 = '#' + Math.floor(Math.random() * 16777215).toString(16);
+                const randomColor1 = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+                const randomColor2 = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
-                const videoHtml = `
-                    <div style="width: 100%; height: 100%; background: linear-gradient(45deg, ${randomColor1}, ${randomColor2}); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">▶️</div>
-                        <div style="font-weight: bold;">Video Generated</div>
-                        <div style="font-size: 12px; opacity: 0.8; margin-top: 10px;">${prompt.substring(0, 40)}...</div>
-                    </div>
-                `;
+                let videoHtml;
+                if (referenceImageData) {
+                    videoHtml = `
+                        <div style="width: 100%; height: 100%; position: relative; overflow: hidden;">
+                            <img src="${referenceImageData}" style="width: 100%; height: 100%; object-fit: cover; filter: hue-rotate(${Math.random() * 40}deg) saturate(1.2);" />
+                            <div style="position: absolute; inset: 0; background: linear-gradient(45deg, ${randomColor1}33, ${randomColor2}33); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">▶️</div>
+                                <div style="background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; font-size: 13px;">Video generated from start image</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    videoHtml = `
+                        <div style="width: 100%; height: 100%; background: linear-gradient(45deg, ${randomColor1}, ${randomColor2}); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">▶️</div>
+                            <div style="font-weight: bold;">Video Generated</div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-top: 10px;">${prompt.substring(0, 40)}...</div>
+                        </div>
+                    `;
+                }
 
                 document.getElementById('generatedVideo').innerHTML = videoHtml;
                 document.getElementById('generatingState').style.display = 'none';
@@ -386,8 +480,8 @@
 
                 // Update stats
                 const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
-                stats.totalVideos = (stats.totalVideos || 0) + 1; // Track videos separartely or same
-                stats.credits = Math.max(0, (stats.credits || 50) - 5); // Videos cost more
+                stats.totalVideos = (stats.totalVideos || 0) + 1;
+                stats.credits = Math.max(0, (stats.credits || 50) - 5);
                 localStorage.setItem('nexus_stats', JSON.stringify(stats));
 
                 NexusUI.showToast('Video generated successfully!', 'success');
