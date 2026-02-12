@@ -286,7 +286,51 @@
             document.getElementById('totalImages').textContent = stats.totalImages || 0;
             document.getElementById('creditsLeft').textContent = stats.credits || 50;
             document.getElementById('enhancedImages').textContent = stats.enhanced || 0;
+
+            // Load Recent Creations from history
+            const history = JSON.parse(localStorage.getItem('nexus_history') || '[]');
+            if (history.length > 0) {
+                document.getElementById('emptyRecent').style.display = 'none';
+                const grid = document.getElementById('recentGrid');
+                grid.style.display = 'grid';
+
+                grid.innerHTML = history.slice(0, 8).map(h => {
+                    const isVideo = h.type === 'video';
+                    const typeIcon = isVideo
+                        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
+                        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                    const typeLabel = isVideo ? 'Video' : 'Image';
+                    const link = isVideo ? 'video.html' : 'generate.html';
+                    const ago = timeAgo(h.timestamp);
+
+                    return `
+                        <a href="${link}" class="card card-hover" style="overflow: hidden; text-decoration: none;">
+                            <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, ${h.color1}, ${h.color2}); display: flex; align-items: center; justify-content: center; position: relative;">
+                                <div style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; font-size: 11px; color: rgba(255,255,255,0.9);">
+                                    ${typeIcon} ${typeLabel}
+                                </div>
+                                ${isVideo ? '<div style="font-size: 32px;">▶️</div>' : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'}
+                            </div>
+                            <div style="padding: 12px;">
+                                <div style="font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">${h.prompt.substring(0, 60)}</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">${ago}</div>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            }
         });
+
+        function timeAgo(ts) {
+            const diff = Date.now() - ts;
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return mins + ' min ago';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            const days = Math.floor(hrs / 24);
+            return days + 'd ago';
+        }
     </script>
 </body>
 
