@@ -5,8 +5,11 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// Secret key (in production, use environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || 'nexus-ai-super-secret-key-2026';
+// Secret key — MUST be set via environment variable
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('FATAL: JWT_SECRET environment variable is not set');
+}
 const JWT_EXPIRY = '7d';
 const SALT_ROUNDS = 12;
 
@@ -134,6 +137,5 @@ module.exports = {
     rateLimit,
     validateEmail,
     validatePassword,
-    sanitizeInput,
-    JWT_SECRET
+    sanitizeInput
 };

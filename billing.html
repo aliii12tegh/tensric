@@ -457,40 +457,64 @@
             }
         }
 
-        // Confirm Plan Change
-        document.getElementById('confirmPlanChange').addEventListener('click', () => {
+        // Confirm Plan Change — redirects to Stripe Checkout
+        document.getElementById('confirmPlanChange').addEventListener('click', async () => {
             if (selectedPlan === currentPlan) {
                 NexusUI.showToast('You are already on this plan', 'info');
                 return;
             }
 
-            const planNames = { free: 'Free', pro: 'Pro', enterprise: 'Enterprise' };
+            if (selectedPlan === 'free') {
+                NexusUI.showToast('To downgrade, please cancel your current subscription first', 'info');
+                return;
+            }
 
-            // Save new plan
-            currentPlan = selectedPlan;
-            localStorage.setItem('nexus_plan', currentPlan);
+            const btn = document.getElementById('confirmPlanChange');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;"></span> Redirecting...';
 
-            // Update display
-            updatePlanDisplay();
+            try {
+                const response = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('nexus_token')
+                    },
+                    body: JSON.stringify({ plan: selectedPlan })
+                });
 
-            // Close modal and show success
-            NexusUI.closeModal('changePlanModal');
-            NexusUI.showToast(`Successfully switched to ${planNames[currentPlan]} plan!`, 'success');
+                const data = await response.json();
+
+                if (data.url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+            } catch (error) {
+                NexusUI.showToast(error.message || 'Payment service unavailable', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Confirm Change';
+            }
         });
 
         // Confirm Cancel
         document.getElementById('confirmCancel').addEventListener('click', () => {
-            // Set to free plan
-            currentPlan = 'free';
-            localStorage.setItem('nexus_plan', 'free');
-
-            // Update display
-            updatePlanDisplay();
-
-            // Close modal and show message
+            // In production, this would call a /api/cancel-subscription endpoint
             NexusUI.closeModal('cancelModal');
-            NexusUI.showToast('Your subscription has been cancelled. You will be moved to Free plan on March 4, 2026.', 'info');
+            NexusUI.showToast('Please contact support to cancel your subscription.', 'info');
         });
+
+        // Check for checkout result in URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('status') === 'success') {
+            NexusUI.showToast('Payment successful! Your plan has been upgraded.', 'success');
+            // Clean URL
+            window.history.replaceState({}, '', 'billing.html');
+        } else if (urlParams.get('status') === 'cancelled') {
+            NexusUI.showToast('Checkout was cancelled.', 'info');
+            window.history.replaceState({}, '', 'billing.html');
+        }
     </script>
 </body>
 
