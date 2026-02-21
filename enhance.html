@@ -152,7 +152,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-size: cover;
+            background-size: contain;
+            background-repeat: no-repeat;
             background-position: center;
         }
 
@@ -540,6 +541,7 @@
 
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
     <script>
         // Variables
         let originalImageUrl = null;
@@ -677,7 +679,7 @@
             updateSlider(percent);
         });
 
-        // Enhance button with progress
+        // Enhance button with real API
         enhanceBtn.addEventListener('click', async () => {
             if (isEnhanced) {
                 if (typeof NexusUI !== 'undefined') {
@@ -686,76 +688,110 @@
                 return;
             }
 
-            // Show overlay
-            enhanceOverlay.classList.add('active');
-
-            // Progress animation
-            const statuses = [
-                { percent: 10, text: 'Analyzing image...' },
-                { percent: 25, text: 'Detecting features...' },
-                { percent: 40, text: 'Upscaling resolution...' },
-                { percent: 55, text: 'Enhancing details...' },
-                { percent: 70, text: 'Reducing noise...' },
-                { percent: 85, text: 'Applying final touches...' },
-                { percent: 95, text: 'Almost done...' },
-                { percent: 100, text: 'Complete!' }
-            ];
-
-            for (const status of statuses) {
-                await new Promise(resolve => setTimeout(resolve, 400));
-                progressFill.style.width = status.percent + '%';
-                progressPercent.textContent = status.percent + '%';
-                progressStatus.textContent = status.text;
+            if (!originalImageUrl) {
+                if (typeof NexusUI !== 'undefined') {
+                    NexusUI.showToast('Please upload an image first', 'warning');
+                }
+                return;
             }
 
-            // Create "enhanced" version (just a filter simulation for demo)
-            await new Promise(resolve => setTimeout(resolve, 300));
-
-            // Create enhanced image with CSS filters (demo simulation)
-            const canvas = document.createElement('canvas');
-            const img = new Image();
-            img.src = originalImageUrl;
-
-            await new Promise(resolve => {
-                img.onload = resolve;
+            // Gather selected enhancement options
+            const activeOptions = [];
+            document.querySelectorAll('.enhance-option.active').forEach(opt => {
+                activeOptions.push(opt.dataset.option);
             });
 
-            canvas.width = img.width * 1.5; // Simulate upscale
-            canvas.height = img.height * 1.5;
-            const ctx = canvas.getContext('2d');
+            const enhanceType = activeOptions[0] || 'upscale';
+            const scale = enhanceType === 'upscale' ? 2 : undefined;
 
-            // Draw with enhanced settings
-            ctx.filter = 'contrast(1.1) saturate(1.2) brightness(1.05)';
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            // Show overlay
+            enhanceOverlay.classList.add('active');
+            progressFill.style.width = '10%';
+            progressPercent.textContent = '10%';
+            progressStatus.textContent = 'Uploading image...';
 
-            enhancedImageUrl = canvas.toDataURL('image/jpeg', 0.95);
+            try {
+                // Strip the data:image/...;base64, prefix for the API
+                const base64Data = originalImageUrl.split(',')[1] || originalImageUrl;
 
-            // Update after image
-            document.getElementById('afterImage').style.backgroundImage = `url(${enhancedImageUrl})`;
+                // Call secured API (auto-fetches anti-replay token)
+                progressFill.style.width = '20%';
+                progressPercent.textContent = '20%';
+                progressStatus.textContent = 'Sending to AI...';
 
-            // Update label
-            document.querySelector('.comparison-label.after').innerHTML = '<span class="dot"></span> ✨ Enhanced (2x)';
+                const result = await NexusAPI.enhanceImage(base64Data, {
+                    type: enhanceType,
+                    scale: scale,
+                    options: activeOptions
+                });
 
-            // Hide overlay
-            enhanceOverlay.classList.remove('active');
+                const jobId = result.jobId;
 
-            // Reset progress for next time
-            setTimeout(() => {
-                progressFill.style.width = '0%';
-                progressPercent.textContent = '0%';
-                progressStatus.textContent = 'Analyzing image...';
-            }, 500);
+                // Poll for job completion — map status to progress
+                const jobResult = await NexusAPI.pollJobStatus(jobId, (status) => {
+                    if (status === 'pending') {
+                        progressFill.style.width = '30%';
+                        progressPercent.textContent = '30%';
+                        progressStatus.textContent = 'Queued for processing...';
+                    } else if (status === 'processing') {
+                        progressFill.style.width = '60%';
+                        progressPercent.textContent = '60%';
+                        progressStatus.textContent = 'AI is enhancing your image...';
+                    }
+                });
 
-            // Update stats
-            const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
-            stats.enhanced = (stats.enhanced || 0) + 1;
-            stats.credits = Math.max(0, (stats.credits || 50) - 1);
-            localStorage.setItem('nexus_stats', JSON.stringify(stats));
+                // Enhancement complete
+                progressFill.style.width = '100%';
+                progressPercent.textContent = '100%';
+                progressStatus.textContent = 'Complete!';
 
-            isEnhanced = true;
+                // Load the enhanced image
+                const enhancedUrl = jobResult.signedUrl || jobResult.imageUrl;
+                enhancedImageUrl = enhancedUrl;
 
-            if (typeof NexusUI !== 'undefined') {
-                NexusUI.showToast('Image enhanced successfully! Drag the slider to compare.', 'success');
+                // Update after image in the comparison panel
+                document.getElementById('afterImage').style.backgroundImage = `url(${enhancedImageUrl})`;
+
+                // Update label
+                document.querySelector('.comparison-label.after').innerHTML = '<span class="dot"></span> ✨ Enhanced';
+
+                // Hide overlay after a brief moment
+                await new Promise(resolve => setTimeout(resolve, 500));
+                enhanceOverlay.classList.remove('active');
+
+                // Reset progress for next time
+                setTimeout(() => {
+                    progressFill.style.width = '0%';
+                    progressPercent.textContent = '0%';
+                    progressStatus.textContent = 'Analyzing image...';
+                }, 500);
+
+                // Update stats
+                const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
+                stats.enhanced = (stats.enhanced || 0) + 1;
+                stats.credits = Math.max(0, (stats.credits || 50) - 1);
+                localStorage.setItem('nexus_stats', JSON.stringify(stats));
+
+                isEnhanced = true;
+
+                if (typeof NexusUI !== 'undefined') {
+                    NexusUI.showToast('Image enhanced successfully! Drag the slider to compare.', 'success');
+                }
+
+            } catch (error) {
+                // Hide overlay on error
+                enhanceOverlay.classList.remove('active');
+
+                // Reset progress
+                setTimeout(() => {
+                    progressFill.style.width = '0%';
+                    progressPercent.textContent = '0%';
+                    progressStatus.textContent = 'Analyzing image...';
+                }, 300);
+
+                if (typeof NexusUI !== 'undefined') {
+                    NexusUI.showToast(error.message || 'Enhancement failed. Please try again.', 'error');
+                }
             }
         });
 

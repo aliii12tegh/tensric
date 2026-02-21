@@ -316,6 +316,7 @@
 
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
     <script>
         // ── History helpers ──
         function getHistory() {
@@ -456,45 +457,74 @@
                 return;
             }
 
+            // Gather video settings
+            const duration = document.querySelector('.aspect-btn[data-duration].active')?.dataset.duration || '3';
+            const aspectRatio = document.querySelector('.aspect-btn[data-ratio].active')?.dataset.ratio || '16:9';
+            const motion = document.querySelector('.quality-btn[data-motion].active')?.dataset.motion || 'med';
+            const camera = document.getElementById('cameraSelect').value;
+
             // Show generating state
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('resultState').style.display = 'none';
             document.getElementById('generatingState').style.display = 'block';
 
-            // Simulation Progress
+            // Progress bar
             const progressBar = document.getElementById('progressBar');
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 5;
-                if (progress > 100) progress = 100;
-                progressBar.style.width = progress + '%';
-            }, 200);
+            progressBar.style.width = '10%';
 
             try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 5000));
-                clearInterval(interval);
+                // Call secured API (auto-fetches anti-replay token)
+                progressBar.style.width = '15%';
+                const result = await NexusAPI.generateVideo(prompt, {
+                    duration: parseInt(duration),
+                    aspectRatio: aspectRatio,
+                    motion: motion,
+                    camera: camera !== 'none' ? camera : undefined,
+                    referenceImage: referenceImageData || undefined
+                });
+
+                const jobId = result.jobId;
+
+                // Poll for job completion — update progress bar
+                const jobResult = await NexusAPI.pollJobStatus(jobId, (status) => {
+                    if (status === 'pending') {
+                        progressBar.style.width = '25%';
+                    } else if (status === 'processing') {
+                        progressBar.style.width = '60%';
+                    }
+                });
+
                 progressBar.style.width = '100%';
 
-                // Create placeholder video visual
-                const randomColor1 = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
-                const randomColor2 = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+                // Display the generated video
+                const videoUrl = jobResult.signedUrl || jobResult.videoUrl;
 
                 let videoHtml;
-                if (referenceImageData) {
+                if (videoUrl && (videoUrl.endsWith('.mp4') || videoUrl.includes('video'))) {
                     videoHtml = `
-                        <div style="width: 100%; height: 100%; position: relative; overflow: hidden;">
-                            <img src="${referenceImageData}" style="width: 100%; height: 100%; object-fit: cover; filter: hue-rotate(${Math.random() * 40}deg) saturate(1.2);" />
-                            <div style="position: absolute; inset: 0; background: linear-gradient(45deg, ${randomColor1}33, ${randomColor2}33); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                        <video controls autoplay loop style="width: 100%; max-height: 60vh; object-fit: contain; border-radius: var(--radius-xl);">
+                            <source src="${videoUrl}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    `;
+                } else if (videoUrl) {
+                    // If format is uncertain, try video tag with img fallback
+                    videoHtml = `
+                        <div style="width: 100%; height: 100%; position: relative;">
+                            <video controls autoplay loop style="width: 100%; max-height: 60vh; object-fit: contain; border-radius: var(--radius-xl);"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <source src="${videoUrl}" type="video/mp4">
+                            </video>
+                            <div style="display: none; width: 100%; height: 100%; background: linear-gradient(45deg, #667eea, #764ba2); align-items: center; justify-content: center; flex-direction: column; color: white;">
                                 <div style="font-size: 48px; margin-bottom: 20px;">▶️</div>
-                                <div style="background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; font-size: 13px;">Video generated from start image</div>
+                                <a href="${videoUrl}" target="_blank" rel="noopener" style="background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none; font-size: 13px;">Open Video</a>
                             </div>
                         </div>
                     `;
                 } else {
                     videoHtml = `
-                        <div style="width: 100%; height: 100%; background: linear-gradient(45deg, ${randomColor1}, ${randomColor2}); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">▶️</div>
+                        <div style="width: 100%; height: 100%; background: linear-gradient(45deg, #667eea, #764ba2); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
                             <div style="font-weight: bold;">Video Generated</div>
                             <div style="font-size: 12px; opacity: 0.8; margin-top: 10px;">${prompt.substring(0, 40)}...</div>
                         </div>
@@ -504,6 +534,18 @@
                 document.getElementById('generatedVideo').innerHTML = videoHtml;
                 document.getElementById('generatingState').style.display = 'none';
                 document.getElementById('resultState').style.display = 'block';
+
+                // Update download button with actual URL
+                document.getElementById('downloadBtn').onclick = () => {
+                    if (videoUrl) {
+                        const link = document.createElement('a');
+                        link.href = videoUrl;
+                        link.download = 'tensric-video.mp4';
+                        link.click();
+                    } else {
+                        NexusUI.showToast('No video to download', 'warning');
+                    }
+                };
 
                 // Update stats
                 const stats = JSON.parse(localStorage.getItem('nexus_stats') || '{}');
@@ -515,8 +557,9 @@
                 saveToHistory({
                     type: 'video',
                     prompt: prompt,
-                    color1: randomColor1,
-                    color2: randomColor2,
+                    videoUrl: videoUrl,
+                    color1: '#667eea',
+                    color2: '#764ba2',
                     timestamp: Date.now()
                 });
                 renderHistory();
@@ -524,7 +567,7 @@
                 NexusUI.showToast('Video generated successfully!', 'success');
 
             } catch (error) {
-                clearInterval(interval);
+                progressBar.style.width = '0%';
                 document.getElementById('generatingState').style.display = 'none';
                 document.getElementById('emptyState').style.display = 'block';
                 NexusUI.showToast(error.message || 'Generation failed', 'error');
