@@ -97,11 +97,12 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="user-menu">
+                <div class="user-menu" style="cursor: pointer;" onclick="window.location.href='settings.html'"
+                    title="Profile Settings">
                     <div class="avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <div class="user-name" id="userName">User</div>
-                        <div class="user-email" id="userEmail">user@example.com</div>
+                        <div class="user-email" id="userEmail" style="display: none;"></div>
                     </div>
                 </div>
             </div>
@@ -375,8 +376,12 @@
 
             if (user) {
                 document.getElementById('userName').textContent = user.name || 'User';
-                document.getElementById('userEmail').textContent = user.email || '';
-                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+
+                if (user.avatarImage) {
+                    document.getElementById('userAvatar').innerHTML = `<img src="${user.avatarImage}" alt="User Avatar">`;
+                } else {
+                    document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+                }
             }
 
             // Load stats

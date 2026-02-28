@@ -97,11 +97,12 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="user-menu">
+                <div class="user-menu" style="cursor: pointer;" onclick="window.location.href='settings.html'"
+                    title="Profile Settings">
                     <div class="avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <div class="user-name" id="userName">User</div>
-                        <div class="user-email" id="userEmail">user@example.com</div>
+                        <div class="user-email" id="userEmail" style="display: none;"></div>
                     </div>
                 </div>
             </div>
@@ -123,6 +124,17 @@
                         <div class="avatar avatar-xl" id="profileAvatar">U</div>
                         <div class="flex-1">
                             <form id="profileForm" class="flex flex-col gap-4">
+                                <div class="flex gap-3 mt-1 mb-4">
+                                    <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="uploadAvatarBtn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="17 8 12 3 7 8" />
+                                            <line x1="12" y1="3" x2="12" y2="15" />
+                                        </svg>
+                                        Upload Image
+                                    </button>
+                                </div>
                                 <div class="input-group">
                                     <label for="profileName">Full Name</label>
                                     <input type="text" id="profileName" class="input" placeholder="Your name">
@@ -274,12 +286,53 @@
 
             if (user) {
                 document.getElementById('userName').textContent = user.name || 'User';
-                document.getElementById('userEmail').textContent = user.email || '';
-                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
-                document.getElementById('profileAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
                 document.getElementById('profileName').value = user.name || '';
                 document.getElementById('profileEmail').value = user.email || '';
+
+                if (user.avatarImage) {
+                    const imgHtml = `<img src="${user.avatarImage}" alt="User Avatar">`;
+                    document.getElementById('userAvatar').innerHTML = imgHtml;
+                    document.getElementById('profileAvatar').innerHTML = imgHtml;
+                } else {
+                    const initial = (user.name || 'U').charAt(0).toUpperCase();
+                    document.getElementById('userAvatar').textContent = initial;
+                    document.getElementById('profileAvatar').textContent = initial;
+                }
             }
+        });
+
+        // Handle Avatar Upload Logic
+        let pendingAvatarBase64 = null;
+        const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
+        const avatarUploadInput = document.getElementById('avatarUploadInput');
+
+        uploadAvatarBtn.addEventListener('click', () => {
+            avatarUploadInput.click();
+        });
+
+        avatarUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                NexusUI.showToast('Please select a valid image file', 'warning');
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) { // Limit to 2MB since it goes in localStorage
+                NexusUI.showToast('Image size must be less than 2MB', 'warning');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                pendingAvatarBase64 = event.target.result;
+                const imgHtml = `<img src="${pendingAvatarBase64}" alt="Preview Avatar">`;
+                document.getElementById('profileAvatar').innerHTML = imgHtml;
+                // Update sidebar preview too immediately
+                document.getElementById('userAvatar').innerHTML = imgHtml;
+            };
+            reader.readAsDataURL(file);
         });
 
         // Profile form
@@ -289,11 +342,25 @@
 
             const user = NexusAuth.getCurrentUser() || {};
             user.name = name;
+
+            if (pendingAvatarBase64) {
+                user.avatarImage = pendingAvatarBase64;
+            }
+
             localStorage.setItem('nexus_user', JSON.stringify(user));
 
             document.getElementById('userName').textContent = name;
-            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-            document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+
+            // Re-render UI avatars just in case
+            if (user.avatarImage) {
+                const imgHtml = `<img src="${user.avatarImage}" alt="User Avatar">`;
+                document.getElementById('userAvatar').innerHTML = imgHtml;
+                document.getElementById('profileAvatar').innerHTML = imgHtml;
+            } else {
+                const initial = name.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+            }
 
             NexusUI.showToast('Profile updated successfully!', 'success');
         });
