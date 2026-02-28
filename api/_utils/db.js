@@ -63,6 +63,7 @@ function createUser(userData) {
         ...userData,
         credits: 50,
         plan: 'free',
+        isAdmin: false,
         createdAt: new Date().toISOString()
     };
     users.push(newUser);
@@ -85,6 +86,11 @@ function getImages(userId) {
     initDb();
     const images = readData(IMAGES_FILE);
     return images.filter(i => i.userId === userId);
+}
+
+function getAllImages() {
+    initDb();
+    return readData(IMAGES_FILE);
 }
 
 function createImage(imageData) {
@@ -112,5 +118,6 @@ module.exports = {
     createUser,
     updateUser,
     getImages,
+    getAllImages,
     createImage
 };

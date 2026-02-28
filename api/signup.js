@@ -73,6 +73,7 @@ module.exports = async (req, res) => {
             email: user.email,
             credits: user.credits,
             plan: user.plan,
+            isAdmin: user.isAdmin || false,
             createdAt: user.createdAt
         };
 

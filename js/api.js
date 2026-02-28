@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   NEXUS AI - API Client
+   NEXUS AI - API Client (Secured)
+   Handles anti-replay tokens, job polling, and authenticated requests
    ═══════════════════════════════════════════════════════════════ */
 
 const API_BASE = '/api';
@@ -22,7 +23,7 @@ class NexusAPI {
         localStorage.removeItem('nexus_user');
     }
 
-    // Make authenticated request
+    // ── Core request method ─────────────────────────────────────
     async request(endpoint, options = {}) {
         const headers = {
             'Content-Type': 'application/json',
@@ -59,7 +60,62 @@ class NexusAPI {
         }
     }
 
-    // Auth endpoints
+    // ── Anti-replay token ───────────────────────────────────────
+    async getRequestToken() {
+        const data = await this.request('/request-token', {
+            method: 'POST'
+        });
+        return data.token;
+    }
+
+    // ── Secured request (auto-fetches request token) ────────────
+    async securedRequest(endpoint, body) {
+        const requestToken = await this.getRequestToken();
+
+        return this.request(endpoint, {
+            method: 'POST',
+            headers: {
+                'x-request-token': requestToken
+            },
+            body: JSON.stringify(body)
+        });
+    }
+
+    // ── Job polling ─────────────────────────────────────────────
+    // Polls /api/job-status until completed or failed
+    // onProgress(status) is called on each poll
+    // Returns the final job data with signedUrl on success
+    async pollJobStatus(jobId, onProgress, maxWaitMs = 120000) {
+        const startTime = Date.now();
+        let pollInterval = 2000; // start at 2s
+        const MAX_INTERVAL = 8000;
+
+        while (Date.now() - startTime < maxWaitMs) {
+            const data = await this.request(`/job-status?jobId=${encodeURIComponent(jobId)}`);
+
+            if (onProgress) {
+                onProgress(data.status, data);
+            }
+
+            if (data.status === 'completed') {
+                return data;
+            }
+
+            if (data.status === 'failed') {
+                throw new Error(data.error || 'Job failed');
+            }
+
+            // Wait before next poll
+            await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+            // Increase interval gradually (exponential backoff capped at MAX_INTERVAL)
+            pollInterval = Math.min(pollInterval * 1.3, MAX_INTERVAL);
+        }
+
+        throw new Error('Generation timed out. Please try again.');
+    }
+
+    // ── Auth endpoints ──────────────────────────────────────────
     async login(email, password) {
         return this.request('/login', {
             method: 'POST',
@@ -78,22 +134,27 @@ class NexusAPI {
         return this.request('/me');
     }
 
-    // Image endpoints
+    // ── Image generation (secured) ──────────────────────────────
+    // Returns { jobId } — caller should use pollJobStatus() to get result
     async generateImage(prompt, options = {}) {
-        return this.request('/generate', {
-            method: 'POST',
-            body: JSON.stringify({ prompt, ...options })
-        });
+        return this.securedRequest('/generate', { prompt, ...options });
     }
 
+    // ── Image enhancement (secured) ─────────────────────────────
     async enhanceImage(imageData, options = {}) {
-        return this.request('/enhance', {
-            method: 'POST',
-            body: JSON.stringify({ image: imageData, ...options })
+        return this.securedRequest('/enhance', { image: imageData, ...options });
+    }
+
+    // ── Video generation (secured) ──────────────────────────────
+    async generateVideo(prompt, options = {}) {
+        return this.securedRequest('/generate', {
+            prompt,
+            type: 'video',
+            ...options
         });
     }
 
-    // User endpoints
+    // ── User endpoints ──────────────────────────────────────────
     async updateProfile(data) {
         return this.request('/user/update', {
             method: 'PUT',

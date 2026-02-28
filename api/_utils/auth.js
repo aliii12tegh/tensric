@@ -78,6 +78,32 @@ function authMiddleware(handler) {
     };
 }
 
+// Admin middleware
+function adminMiddleware(handler) {
+    const { getUserById } = require('./db');
+    return async (req, res) => {
+        const token = extractToken(req);
+
+        if (!token) {
+            return res.status(401).json({ error: 'Authentication required' });
+        }
+
+        const decoded = verifyToken(token);
+
+        if (!decoded) {
+            return res.status(401).json({ error: 'Invalid or expired token' });
+        }
+
+        const user = getUserById(decoded.id);
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ error: 'Forbidden: Admin access required' });
+        }
+
+        req.user = decoded;
+        return handler(req, res);
+    };
+}
+
 // Rate limiting (simple in-memory implementation)
 const rateLimitMap = new Map();
 
@@ -134,6 +160,7 @@ module.exports = {
     comparePassword,
     extractToken,
     authMiddleware,
+    adminMiddleware,
     rateLimit,
     validateEmail,
     validatePassword,

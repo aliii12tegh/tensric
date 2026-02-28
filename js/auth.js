@@ -136,30 +136,33 @@ if (loginForm) {
         await new Promise(resolve => setTimeout(resolve, 800));
 
         try {
-            // Find user
-            const user = findUserByEmail(email);
+            let userData, token;
 
-            if (!user) {
-                throw new Error('Invalid email or password');
+            // Use real API if available
+            if (window.NexusAPI) {
+                const response = await NexusAPI.login(email, password);
+                token = response.token;
+                userData = response.user;
+                NexusAPI.setToken(token);
+            } else {
+                // Fallback to local
+                const user = findUserByEmail(email);
+                if (!user) throw new Error('Invalid email or password');
+                if (user.password !== password) throw new Error('Invalid email or password');
+                token = generateToken(user.id);
+                userData = {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    credits: user.credits,
+                    plan: user.plan,
+                    isAdmin: user.isAdmin
+                };
             }
-
-            // Check password (simple comparison for demo)
-            if (user.password !== password) {
-                throw new Error('Invalid email or password');
-            }
-
-            // Generate token
-            const token = generateToken(user.id);
 
             // Store auth data
             localStorage.setItem('nexus_token', token);
-            localStorage.setItem('nexus_user', JSON.stringify({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                credits: user.credits,
-                plan: user.plan
-            }));
+            localStorage.setItem('nexus_user', JSON.stringify(userData));
 
             // Initialize stats if not exists
             if (!localStorage.getItem('nexus_stats')) {
